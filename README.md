@@ -8,7 +8,9 @@ I have a had a brief look at the timetable display for curtin in eStudent, it is
 
 I would like to create a script that will pull all of the my class information from eStudent and then be able to set this up in google calendar as a seperate calendar (So that it can be turned on and off, otherwise it will make my calendar super cluttered)
 
-### Things I have noticed / How it can be done
+## Things I have noticed / How it can be done
+
+### Getting the timetable information from within eStudent
 
 - I have noticed that if you expand the table above the graphical timetable you can have access to all of the information such as times, room numbers and whether or not that class is on ina given week. This should be relatively easy to extract (When I learn how to use beautiful soup or some other such package!)
 
@@ -35,3 +37,6 @@ I would like to create a script that will pull all of the my class information f
         - cssTtableNavMainContent
             - Contains the content
             - This is the time in the form "Bentley Campus 405 201"
+
+### Logging into OASIS
+[[/images/oasis_login.png]]
