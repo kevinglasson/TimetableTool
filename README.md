@@ -39,4 +39,4 @@ I would like to create a script that will pull all of the my class information f
             - This is the time in the form "Bentley Campus 405 201"
 
 ### Logging into OASIS
-[[cu_timetable_tools/images/oasis_login.png]]
+![Alt text](/images/oasis_login.png?raw=true "Oasis Login")
