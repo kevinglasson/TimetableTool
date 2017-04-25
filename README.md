@@ -40,3 +40,12 @@ I would like to create a script that will pull all of the my class information f
 
 ### Logging into OASIS
 ![Alt text](/images/oasis_login.png?raw=true "Oasis Login")
+
+Investigating the login fields
+- Username:
+![Alt text](/images/oasis_username.png?raw=true "Oasis Login")
+name = "UserName"
+value = ""
+- Password:
+![Alt text](/images/oasis_password.png?raw=true "Oasis Login")
+name = "Password"
