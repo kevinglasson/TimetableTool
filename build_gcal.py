@@ -53,8 +53,12 @@ def get_credentials():
     return credentials
 
 
-def create_Calendar(cal_name):
+def new_Calendar(cal_name):
+    """Shows basic usage of the Google Calendar API.
 
+    Creates a Google Calendar API service object and outputs a list of the next
+    10 events on the user's calendar.
+    """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
@@ -67,15 +71,7 @@ def create_Calendar(cal_name):
     print(created_calendar['id'])
 
 
-# Publishes an event to the requested calendar. event is defined as per the
-# Google calendar API
-def publish_event(event, calendar):
-
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
-
-    # This will need to be to another method that creates the even from my data
+def post_event(event):
     # Create an event to publish to the calendar
     event = {
         'summary': '',
@@ -91,5 +87,5 @@ def publish_event(event, calendar):
         }
     }
 
-    event = service.events().insert(calendarId=calendar, body=event).execute()
+    event = service.events().insert(calendarId='primary', body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
