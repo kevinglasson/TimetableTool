@@ -30,10 +30,9 @@ def main():
     try:
         # This should be a list of CurtinUnit objects
         timetable = get_timetable(username, password)
+        print_units(timetable)
     except LoginFailedError:
         print('{"error":"Login failed. Wrong username or password?"}')
-
-    print_units(timetable)
 
 
 if __name__ == '__main__':
