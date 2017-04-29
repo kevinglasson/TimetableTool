@@ -12,6 +12,9 @@ from oauth2client.file import Storage
 import datetime
 
 from CurtinUnit import CurtinUnit
+from CUeStudentSession import to_datetime
+
+TZ = 'Australia/Perth'
 
 try:
     import argparse
@@ -59,11 +62,9 @@ def create_Calendar(cal_name):
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    # Create a new calendar in Googls Calendar to hold the information
+    # Create a new calendar in Google Calendar
     calendar = {'summary': cal_name, 'timeZone': 'Australia/Perth'}
-
     created_calendar = service.calendars().insert(body=calendar).execute()
-
     print(created_calendar['id'])
 
 
@@ -75,21 +76,33 @@ def publish_event(event, calendar):
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    # This will need to be to another method that creates the even from my data
-    # Create an event to publish to the calendar
+    # Publish event
+    event = service.events().insert(calendarId=calendar, body=event).execute()
+    print('Event created: %s' % (event.get('htmlLink')))
+
+
+def convert_to_gcal_event(cls):
     event = {
         'summary': '',
         'location': '',
-        'description': '',
         'start': {
-            'dateTime': '2015-05-28T09:00:00-07:00',
-            'timeZone': 'Australia/Perth',
+            'dateTime': '',
+            'timeZone': 'DEFAULT_TIMEZONE',
         },
         'end': {
-            'dateTime': '2015-05-28T17:00:00-07:00',
-            'timeZone': 'Australia/Perth',
+            'dateTime': '',
+            'timeZone': 'DEFAULT_TIMEZONE',
         }
     }
 
-    event = service.events().insert(calendarId=calendar, body=event).execute()
-    print('Event created: %s' % (event.get('htmlLink')))
+    event['summary'] = cls.type
+    event['location'] = cls.location[0]
+    event['start']['dateTime'] = to_gcal_datetime(cls.date, cls.start_time)
+    event['end']['dateTime'] = to_gcal_datetime(cls.date, cls.end_time)
+
+
+def to_gcal_datetime(date, time):
+    date = to_datetime(date)
+    gcal_datetime = '{}-{}-{}T{}:00'.format(date.year, date.month, date.day,
+                                            time)
+    return gcal_datetime

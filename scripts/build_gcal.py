@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from __future__ import print_function
 import httplib2
 import os
@@ -63,7 +62,7 @@ def new_Calendar(cal_name):
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    # Create a new calendar in Googls Calendar to hold the information
+    # Create a new calendar in Google Calendar to hold the information
     calendar = {'summary': cal_name, 'timeZone': 'Australia/Perth'}
 
     created_calendar = service.calendars().insert(body=calendar).execute()
