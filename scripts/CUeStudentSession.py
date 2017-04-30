@@ -4,7 +4,6 @@ from CurtinUnit import CurtinUnit
 import datetime
 import getpass
 import requests
-import pandas as pd
 
 LOGIN_URL = 'https://oasis.curtin.edu.au/Auth/Logon'
 OASIS_URL = 'https://oasis.curtin.edu.au/'
@@ -17,7 +16,6 @@ MONTHS = [
 ]
 SCHOOLDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-TZ = 'Australia/Sydney'
 
 
 class LoginFailedError(Exception):
@@ -31,6 +29,7 @@ class CUeStudentSession(object):
         self.timetable_page = None
         # To hold the date of the 'Monday, can figure the rest from that!'
         self.timetable_page_mon_date = None
+        self.consecutive_empty_weeks = 0
 
     # Login
     def login(self, studentid, password):
@@ -42,7 +41,7 @@ class CUeStudentSession(object):
         if r.status_code != requests.codes.found:
             raise LoginFailedError(r)
         else:
-            print('Login successful \n')
+            print('\nLogin successful \n')
 
     # Either navigate to the timetable page the first time, or just return the
     # current timetable page
@@ -80,30 +79,52 @@ class CUeStudentSession(object):
             id='ctl00_Content_ctlFilter_CboStudyPeriodFilter_elbList')
         option = select.find_all('option')
         # '2017-1-May 01, 2017'
-        value = option[2]['value']
-        # ['2017', '1', 'May 01 2017']
-        value_list = value.replace(',', '').split('-')
-        # ['May', '01', '2017']
-        date_list = value_list[-1:][0].split()
-        order = [1, 0, 2]
-        # ['01', 'May', '2017']
-        date_list = [date_list[i] for i in order]
-        # '01-May-2017'
-        date_string = '-'.join(date_list)
-        self.timetable_page_mon_date = to_datetime(date_string)
+        string = option[2]['value']
+        # datetime.date(2017, 5, 1)
+        date = datetime.datetime.strptime(string[7:], '%b %d, %Y').date()
+        self.timetable_page_mon_date = date
 
     def set_mon_date(self):
-        page = self.timetable_page
-        soup = BeautifulSoup(page, "lxml")
-        date = soup.find(id='ctl00$Content$ctlFilter$TxtStartDt')
-        print(date)
-        date = to_datetime(date)
-        mon_date = date - datetime.timedelta(days=date.weekday())
+        # page = self.timetable_page
+        # soup = BeautifulSoup(page, "lxml")
+        # date = soup.find(id='ctl00$Content$ctlFilter$TxtStartDt')
+        # print(date)
+        # date = to_datetime(date)
+        # mon_date = date - datetime.timedelta(days=date.weekday())
+        print(
+            'processed week starting: {}'.format(self.timetable_page_mon_date))
+        print('\n')
+        mon_date = self.timetable_page_mon_date + datetime.timedelta(days=7)
         self.timetable_page_mon_date = mon_date
 
     def get_timetable(self):
         self.get_timetable_page()
         return self.proc_timetable_page()
+
+    def get_all_timetables(self):
+        sem_unit_lst = []
+        self.get_timetable_page()
+
+        while self.consecutive_empty_weeks <= 2:
+            unit_lst = self.proc_timetable_page()
+            self.set_timetable_page_dated(self.timetable_page_mon_date)
+            if self.check_for_empty_week(unit_lst) is False:
+                sem_unit_lst.append(unit_lst)
+
+        return (sem_unit_lst)
+
+    def check_for_empty_week(self, dict_):
+        empty = False
+        num_empty = 0
+        for key, value in dict_.iteritems():
+            if value.unit_code is 'Default':
+                num_empty += 1
+        if num_empty == len(dict_):
+            empty = True
+            self.consecutive_empty_weeks += 1
+        else:
+            self.consecutive_empty_weeks = 0
+        return empty
 
     # This is good, each class can be assigned it's date at this point because
     # it is going day by day. Just need to write a get_date function
@@ -136,6 +157,7 @@ class CUeStudentSession(object):
                 else:
                     unit_lst[info['unit_code']] = CurtinUnit(info)
 
+        self.check_for_empty_week(unit_lst)
         return unit_lst
 
 
@@ -179,10 +201,6 @@ def from_datetime(date):
 
 # 04-May-2017
 def to_datetime(string):
-    lst = string.split('-')
-    day_int = int(lst[0])
-    year_int = int(lst[2])
-    for i, month in enumerate(MONTHS):
-        if lst[1] == month:
-            month_int = i + 1
-    return (datetime.date(year_int, month_int, day_int))
+    # datetime.date(2017, 5, 4)
+    date = datetime.datetime.strptime(string, '%d-%b-%Y').date()
+    return date

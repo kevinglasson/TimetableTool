@@ -14,10 +14,24 @@ def print_units(unit_list):
         value.to_string()
 
 
+def print_timetable(timetable):
+    for dict_ in timetable:
+        for key, value in dict_.iteritems():
+            print "------------------------------------------------------------------\n"
+            # value.to_string()
+            print(value.class_list[0].date)
+
+
 def get_timetable(studentid, password):
     session = CUeStudentSession()
     session.login(studentid, password)
     return session.get_timetable()
+
+
+def get_all_timetables(studentid, password):
+    session = CUeStudentSession()
+    session.login(studentid, password)
+    return session.get_all_timetables()
 
 
 def main():
@@ -29,8 +43,8 @@ def main():
 
     try:
         # This should be a list of CurtinUnit objects
-        timetable = get_timetable(username, password)
-        print_units(timetable)
+        timetable = get_all_timetables(username, password)
+        print_timetable(timetable)
     except LoginFailedError:
         print('{"error":"Login failed. Wrong username or password?"}')
 
