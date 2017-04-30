@@ -16,6 +16,7 @@ def login(self, studentid, password):
 def get_timetables(self):
 
 def get_all_timetables(self):
+
 """
 
 from __future__ import print_function
@@ -53,12 +54,14 @@ class CUeStudentSession(object):
     for interacting with Curtin's eStudent portal. It accessess and extracts
     the timetable information for the provided login details and stores them
     in a CurtinUnit object
+
     """
 
     def __init__(self):
         """Create the necessary variables for a session.
 
         Initialises requests session and sets instance variables to defaults
+
         """
         self.sess = requests.Session()
         self.timetable_page = None
@@ -77,6 +80,7 @@ class CUeStudentSession(object):
         Keyword arguments:
         studentid -- The students id number
         password -- The students password
+
         """
         r = self.sess.get(LOGIN_URL)
         data = dict(UserName=studentid, Password=password)
@@ -109,6 +113,7 @@ class CUeStudentSession(object):
 
         Keyword arguments:
         date -- The date to navigate to
+
         """
         tt_page = self.timetable_page
         date = from_datetime(date)
@@ -127,6 +132,7 @@ class CUeStudentSession(object):
 
         It is necessary to obtain the first date a different way. After the
         initial date is established all future dates can be calculated.
+
         """
         page = self.timetable_page
         soup = BeautifulSoup(page, "lxml")
@@ -143,7 +149,8 @@ class CUeStudentSession(object):
         """Move the monday date forward 7 days.
 
         Increment the monday date by 7 days, because the scrape happens in 1
-        week blocks this will set the next monday date to be navigated to
+        week blocks this will set the next monday date to be navigated to.
+
         """
         print(
             'processed week starting: {}'.format(self.timetable_page_mon_date))
@@ -156,6 +163,7 @@ class CUeStudentSession(object):
 
         Process the default timetable page navigated to, this will be the timetable of the week containing todays date, this will only get that
         timetable, nothing more.
+
         """
         self.get_timetable_page()
         return self.proc_timetable_page()
@@ -185,6 +193,7 @@ class CUeStudentSession(object):
 
         Keyword arguments:
         dict_ -- Dictionary containing the CurtinUnits
+
         """
         empty = False
         num_empty = 0
@@ -205,7 +214,8 @@ class CUeStudentSession(object):
 
         Returns a dict containing the units that were found in the timetable.
         The key of the dictionary is the unit code and each unit is contained
-        in a CurtinUnit object
+        in a CurtinUnit object.
+
         """
         page = self.timetable_page
         soup = BeautifulSoup(page, "lxml")
@@ -255,6 +265,7 @@ def to_24h(time):
 
     Keyword arguments:
     time - 12h time in the format 00:00xm
+
     """
     am_pm = time[-2:].lower()
     hour, minute = time[:-2].split(':')
@@ -272,6 +283,8 @@ def date_from_day_abbr(string, mon_date):
     abbreviated day.
 
     Keyword arguments:
+    mon_date -- the monday date for the week containing the abbreviated day
+
     """
     for i, day in enumerate(DAYS):
         if day == string:
@@ -285,6 +298,7 @@ def from_datetime(date):
 
     A compatible string is one in the format dd.mm.yyyy. It is necessary for
     navigating to the required timetable page.
+
     """
     month_abbr = ''
     for i, month in enumerate(MONTHS):
@@ -300,6 +314,7 @@ def to_datetime(string):
 
     Converting date in string format to a datetime object as it is cleaner than
     storing a string, and easier to access.
+
     """
     # datetime.date(2017, 5, 4)
     date = datetime.datetime.strptime(string, '%d-%b-%Y').date()

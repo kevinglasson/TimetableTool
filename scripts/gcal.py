@@ -28,7 +28,7 @@ APPLICATION_NAME = 'Google Calendar API'
 
 
 def get_credentials():
-    """Gets valid user credentials from storage.
+    """Get valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
     the OAuth2 flow is completed to obtain the new credentials.
@@ -53,11 +53,20 @@ def get_credentials():
         else:
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
+
     return credentials
 
 
 def create_Calendar(cal_name):
+    """Get valid user credentials from storage.
 
+    If nothing has been stored, or if the stored credentials are invalid,
+    the OAuth2 flow is completed to obtain the new credentials.
+
+    Returns:
+        Credentials, the obtained credential.
+
+    """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
@@ -71,7 +80,6 @@ def create_Calendar(cal_name):
 # Publishes an event to the requested calendar. event is defined as per the
 # Google calendar API
 def publish_event(event, calendar):
-
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
@@ -87,11 +95,11 @@ def convert_to_gcal_event(cls):
         'location': '',
         'start': {
             'dateTime': '',
-            'timeZone': 'DEFAULT_TIMEZONE',
+            'timeZone': 'TZ',
         },
         'end': {
             'dateTime': '',
-            'timeZone': 'DEFAULT_TIMEZONE',
+            'timeZone': 'TZ',
         }
     }
 
