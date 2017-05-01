@@ -1,4 +1,19 @@
 #!/usr/bin/env python
+"""Functions for working with Google Calendar's API.
+
+The functions with in offer the ability to grant permission to a google account
+using the web browser, create calendars and publish events to that calendar or
+any other calendar provided the id is known.
+
+It contains the following public usable classes/functions: (See the function
+docstring for further information)
+
+def get_credentials()
+
+def create_calendar(cal_name)
+
+def add_event(event, cal_id)
+"""
 
 from __future__ import print_function
 import httplib2
@@ -57,13 +72,15 @@ def get_credentials():
 
 
 def create_calendar(cal_name):
-    """Get valid user credentials from storage.
+    """Create a new calendar.
 
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
+    Create a new calendar of the specified name
+
+    Keyword arguments:
+        cal_name -- the name of the calendar to be created
 
     Returns:
-        Credentials, the obtained credential.
+        The id of the newly created calendar
 
     """
     credentials = get_credentials()
@@ -84,6 +101,10 @@ def add_event(event, cal_id):
     Creates a Google Calendar API service object
     and creates a new event on the user's calendar.
 
+    Keyword arguments:
+        event -- compatible event containing information
+        cal_id -- id of the calendar to be posted to
+
     """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
@@ -93,7 +114,23 @@ def add_event(event, cal_id):
     print('Event created: %s' % (event.get('htmlLink')))
 
 
+# TODO: This should probably be moved to my my class I think, as it is added
+# functionality for it
 def convert_to_gcal_event(cls, unit_code, colour):
+    """Convert a CurtinClass object to a Google Calendar compatible event.
+
+    From a CurtinClass object extract all necessary fields to create a calendar
+    event, also prepend the unit_code to the summary and set the event colour
+
+    Keyword arguments:
+        cls -- CurtinClass object
+        unit_code -- string containing the unit code
+        colour -- integer as per Google's API representing event colour
+
+    Returns:
+        event -- converted event
+
+    """
     event = {
         'summary': '',
         'location': '',
@@ -115,12 +152,17 @@ def convert_to_gcal_event(cls, unit_code, colour):
     return (event)
 
 
+# This method should be in CurtinClass as well, as it is specific for the
+# CurtinClass formatting
 def to_gcal_datetime(date, time):
     """Convert date and time to google formatted dattime.
 
     Keyword arguments:
         date -- date string containing the date
         time -- time string containing the time
+
+    Returns:
+        gcal_datetime -- formatted date string
 
     """
     date = to_datetime(date)
