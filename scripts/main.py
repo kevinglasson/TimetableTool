@@ -15,6 +15,8 @@ import time
 from CurtinUnit import CurtinUnit
 from CUeStudentSession import CUeStudentSession, LoginFailedError
 
+# TODO: Event colours for Google Events, will move these to a more sane place at
+# some stage
 COLOURS = ['11', '10', '7', '3', '9', '5']
 
 
@@ -102,25 +104,22 @@ def main():
     # Just for me so I don't have to see warning about my python being old!
     requests.packages.urllib3.disable_warnings()
 
-    username = raw_input('USERNAME: ')
-    password = getpass.getpass('PASSWORD: ')
-    calendar_name = raw_input('New calendar name: ')
+    username = raw_input('OASIS Username: ')
+    password = getpass.getpass('OASIS Password: ')
+    calendar_name = raw_input('Name of calendar to be created: ')
 
     try:
         # Get the timetable data
         timetable = get_all_timetables(username, password)
         # Create a calendar and ge the id
         cal_id = gcal.create_calendar(calendar_name)
+        event_list = convert_timetable_for_gcal(timetable)
+        for event in event_list:
+            gcal.add_event(event, cal_id)
     except LoginFailedError:
         print('{"error":"Login failed. Wrong username or password?"}')
 
-    event_list = convert_timetable_for_gcal(timetable)
-
-    for event in event_list:
-        gcal.add_event(event, cal_id)
-
-    print('Wooohoooo')
-    print('Operations completed, verify by clicking the link above!')
+    print('Successfully Completed')
 
 
 if __name__ == '__main__':

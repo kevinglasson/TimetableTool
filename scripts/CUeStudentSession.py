@@ -6,16 +6,16 @@ for interacting with Curtin's eStudent portal. It accessess and extracts
 the timetable information for the provided login details and stores them
 in a CurtinUnit object
 
-it contains the following public usable functions: (See the function docstring
-for further information)
+It contains the following public usable classes/functions: (See the function
+docstring for further information)
 
-class CUeStudentSession(object):
+class CUeStudentSession(object)
 
-def login(self, studentid, password):
+def login(self, studentid, password)
 
-def get_timetables(self):
+def get_timetables(self)
 
-def get_all_timetables(self):
+def get_all_timetables(self)
 
 """
 
@@ -145,7 +145,6 @@ class CUeStudentSession(object):
         date = datetime.datetime.strptime(string[7:], '%b %d, %Y').date()
         date = date - datetime.timedelta(days=date.weekday())
         self.timetable_page_mon_date = date
-        print('MONDAY DATE IS {}'.format(date))
 
     def inc_mon_date(self):
         """Move the monday date forward 7 days.
@@ -154,21 +153,9 @@ class CUeStudentSession(object):
         week blocks this will set the next monday date to be navigated to.
 
         """
-        print(
-            'processed week starting: {}'.format(self.timetable_page_mon_date))
-        print('\n')
+        print('processed: {}'.format(self.timetable_page_mon_date))
         mon_date = self.timetable_page_mon_date + datetime.timedelta(days=7)
         self.timetable_page_mon_date = mon_date
-
-    def get_timetable(self):
-        """Get navigate to the timetable page.
-
-        Process the default timetable page navigated to, this will be the timetable of the week containing todays date, this will only get that
-        timetable, nothing more.
-
-        """
-        self.get_timetable_page()
-        return self.proc_timetable_page()
 
     def get_all_timetables(self):
         """Get all of the timetables for the study period.
@@ -209,8 +196,6 @@ class CUeStudentSession(object):
             self.consecutive_empty_weeks = 0
         return empty
 
-    # This is good, each class can be assigned it's date at this point because
-    # it is going day by day. Just need to write a get_date function
     def proc_timetable_page(self):
         """Process the timetable page to extract the desired information.
 
