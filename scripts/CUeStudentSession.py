@@ -143,7 +143,9 @@ class CUeStudentSession(object):
         string = option[2]['value']
         # datetime.date(2017, 5, 1)
         date = datetime.datetime.strptime(string[7:], '%b %d, %Y').date()
+        date = date - datetime.timedelta(days=date.weekday())
         self.timetable_page_mon_date = date
+        print('MONDAY DATE IS {}'.format(date))
 
     def inc_mon_date(self):
         """Move the monday date forward 7 days.

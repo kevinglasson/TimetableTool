@@ -10,8 +10,12 @@ import requests
 import requests.packages.urllib3
 import getpass
 import pandas as pd
+import gcal
+import time
 from CurtinUnit import CurtinUnit
 from CUeStudentSession import CUeStudentSession, LoginFailedError
+
+COLOURS = ['11', '10', '7', '3', '9', '5']
 
 
 def print_timetable(timetable):
@@ -62,6 +66,37 @@ def get_all_timetables(studentid, password):
     return session.get_all_timetables()
 
 
+def convert_timetable_for_gcal(timetable):
+    """Convert timetable data and return a list of google calendar events.
+
+    Keyword arguments:
+        timetable -- List of Dictionaries containing CurtinUnit objects
+
+    Retruns:
+        event_list -- List of google calendar compatible events
+
+    """
+    # Make a list of the unit names, will use the index to pick a colour
+    # for the event
+    unit_names = []
+    for dict_ in timetable:
+        for key, value in dict_.iteritems():
+            if value.unit_code not in unit_names:
+                unit_names.append(value.unit_code)
+
+    event_list = []
+    for dict_ in timetable:
+        # value is a CurtinUnit
+        for key, value in dict_.iteritems():
+            # Get a colour, same one for each unit!
+            colour = COLOURS[unit_names.index(value.unit_code)]
+            for cls in value.class_list:
+                event_list.append(
+                    gcal.convert_to_gcal_event(cls, value.unit_code, colour))
+
+    return (event_list)
+
+
 def main():
     """Get user input and control the program."""
     # Just for me so I don't have to see warning about my python being old!
@@ -72,12 +107,22 @@ def main():
     calendar_name = raw_input('New calendar name: ')
 
     try:
-        # This should be a list of CurtinUnit objects
+        # Get the timetable data
         timetable = get_all_timetables(username, password)
-        print_timetable(timetable)
+        # Create a calendar and ge the id
+        cal_id = gcal.create_calendar(calendar_name)
     except LoginFailedError:
         print('{"error":"Login failed. Wrong username or password?"}')
 
+    event_list = convert_timetable_for_gcal(timetable)
+
+    for event in event_list:
+        gcal.add_event(event, cal_id)
+
+    print('Wooohoooo')
+    print('Operations completed, verify by clicking the link above!')
+
 
 if __name__ == '__main__':
+    """Exectute the following if this script is run directly."""
     main()

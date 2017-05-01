@@ -14,8 +14,6 @@ import datetime
 from CurtinUnit import CurtinUnit
 from CUeStudentSession import to_datetime
 
-TZ = 'Australia/Perth'
-
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -24,7 +22,7 @@ except ImportError:
 
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Calendar API'
+APPLICATION_NAME = 'My Project'
 
 
 def get_credentials():
@@ -35,12 +33,13 @@ def get_credentials():
 
     Returns:
         Credentials, the obtained credential.
+
     """
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir, 'calendar-python.json')
+    credential_path = os.path.join(credential_dir, 'client_secret.json')
 
     store = Storage(credential_path)
     credentials = store.get()
@@ -57,7 +56,7 @@ def get_credentials():
     return credentials
 
 
-def create_Calendar(cal_name):
+def create_calendar(cal_name):
     """Get valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
@@ -74,43 +73,57 @@ def create_Calendar(cal_name):
     # Create a new calendar in Google Calendar
     calendar = {'summary': cal_name, 'timeZone': 'Australia/Perth'}
     created_calendar = service.calendars().insert(body=calendar).execute()
-    print(created_calendar['id'])
+    print('Created calendar: {}'.format(created_calendar['id']))
+
+    return (created_calendar['id'])
 
 
-# Publishes an event to the requested calendar. event is defined as per the
-# Google calendar API
-def publish_event(event, calendar):
+def add_event(event, cal_id):
+    """Add an event using the Google Calendar API.
+
+    Creates a Google Calendar API service object
+    and creates a new event on the user's calendar.
+
+    """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    # Publish event
-    event = service.events().insert(calendarId=calendar, body=event).execute()
+    event = service.events().insert(calendarId=cal_id, body=event).execute()
     print('Event created: %s' % (event.get('htmlLink')))
 
 
-def convert_to_gcal_event(cls):
+def convert_to_gcal_event(cls, unit_code, colour):
     event = {
         'summary': '',
         'location': '',
         'start': {
-            'dateTime': '',
-            'timeZone': 'TZ',
+            'dateTime': ''
         },
         'end': {
-            'dateTime': '',
-            'timeZone': 'TZ',
-        }
+            'dateTime': ''
+        },
+        'colorId': ''
     }
 
-    event['summary'] = cls.type
-    event['location'] = cls.location[0]
-    event['start']['dateTime'] = to_gcal_datetime(cls.date, cls.start_time)
-    event['end']['dateTime'] = to_gcal_datetime(cls.date, cls.end_time)
+    event['summary'] = '{} - {}'.format(unit_code, cls.type.capitalize())
+    event['location'] = cls.location
+    event['start']['dateTime'] = to_gcal_datetime(cls.date, cls.start)
+    event['end']['dateTime'] = to_gcal_datetime(cls.date, cls.end)
+    event['colorId'] = colour
+
+    return (event)
 
 
 def to_gcal_datetime(date, time):
+    """Convert date and time to google formatted dattime.
+
+    Keyword arguments:
+        date -- date string containing the date
+        time -- time string containing the time
+
+    """
     date = to_datetime(date)
-    gcal_datetime = '{}-{}-{}T{}:00'.format(date.year, date.month, date.day,
-                                            time)
+    gcal_datetime = '{}-{:>02}-{:>02}T{}:00+08:00'.format(
+        date.year, date.month, date.day, time)
     return gcal_datetime
