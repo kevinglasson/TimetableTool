@@ -9,6 +9,7 @@ def proc_info(self, info)
 def add_class(self, info)
 
 def to_string(self)
+
 """
 
 from CurtinClass import CurtinClass
