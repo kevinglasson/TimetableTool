@@ -1,51 +1,72 @@
-# __cu_timetable_tools__
+# timetable_tool
 
-### The problem as I see it
+Disclaimer: It's not my fault if you are late for class. If for some reason this program scrapes your timetable incorrectly I accept no responsibility. Use at your own risk!
 
-I have a had a brief look at the timetable display for curtin in eStudent, it is super inconvenient to log in through oasis __AND THEN__ into eStudent __AND THEN__ go to My Classes __AND THEN__ select the appropriate dates to view what you __ACTUALLY__ have on at uni this week.
+## My Problem:
 
-### The solution I would like
+### Description
 
-I would like to create a script that will pull all of the my class information from eStudent and then be able to set this up in google calendar as a seperate calendar (So that it can be turned on and off, otherwise it will make my calendar super cluttered)
+I have a had a brief look at the timetable display for curtin in eStudent, it is super inconvenient to log in through oasis __AND THEN__ into eStudent __AND THEN__ go to My Classes __AND THEN__ select the appropriate dates to view what you __ACTUALLY__ have on at uni that week.
 
-## Things I have noticed / How it can be done
+### The solution I would like!
 
-### Getting the timetable information from within eStudent
+I would like to create a script that will pull all of the my class information from eStudent and then be able to set this up in Google Calendar as a seperate calendar (So that it can be turned on and off, otherwise it will make my calendar super cluttered)
 
-- I have noticed that if you expand the table above the graphical timetable you can have access to all of the information such as times, room numbers and whether or not that class is on ina given week. This should be relatively easy to extract (When I learn how to use beautiful soup or some other such package!)
+## My Solution:
 
-- __cssTtableSspNavActvNm__
-    - Appears to contain the label for the __type of class__, i.e. "Laboratory" , "Tutorial" etc.
+### Pre-requisites
+1. Student at Curtin University, this only works for Curtins student portal, although lots of universities use eStudent. It would be relatively simple to adapt this to suit.
+2. Linux - At this stage I have only tested it on Linux and there are some minor OS operations so it will only work on Linux for now
+3. There are a few necessary python packages that can all be installed through pip, they are:
+    1. requests
+    2. getpass
+    3. BeautifulSoup
+    4. Google API modules
+    ```bash
+    sudo pip install --upgrade google-api-python-client
+    ```
 
-- __cssTtableSspNavMasterSpkInfo3__
-    - Appears to indicate the __name of the unit__, i.e. "Foundations of Digital Design"
+### How to use it!
+1. Clone my repository
+```bash
+git clone https://github.com/kevinglasson/timetable_tool
+```
 
-- __cssTtableNavMainWhen__
-    - Contains two sections underneath that describe the __when__
-        - cssTtableNavMainLabel
-            - Contains the label
-            - This is in the form "Time: "
-        - cssTtableNavMainContent
-            - Contains the content
-            - This is the time in the form "Tuesday 9:00 am-10:00 am"
+2. Navigate to the scripts folder
+```
+cd timetable_tool/scripts
+```
 
-- __cssTtableNavMainWhere__
-    - Contains two sections underneath that describe the __where__
-        - cssTtableNavMainLabel
-            - Contains the label
-            - This is in the form "Location: "
-        - cssTtableNavMainContent
-            - Contains the content
-            - This is the time in the form "Bentley Campus 405 201"
+3. Run the main.py script and follow the prompts
+```bash
+./main.py
+```
 
-### Logging into OASIS
-![Alt text](/images/oasis_login.png?raw=true "Oasis Login")
+## TODO:
 
-Investigating the login fields
-- Username:
-![Alt text](/images/oasis_username.png?raw=true "Oasis Login")
-name = "UserName"
-value = ""
-- Password:
-![Alt text](/images/oasis_password.png?raw=true "Oasis Login")
-name = "Password"
+Now that I have the basic command line functionality working I will endeavour to implement the following extensions and improvements.
+
+### GUI
+
+If I am to make this accessible and useable for everyone it is going to need a GUI, command line operation is too clunky and intimidating for some!
+
+### OS Independency
+
+Another thing needed is to account for the small amount of OS operations in the Google credential file creation part of the program, this needs to be able to assess what type of operating system it is running on and issue the correct sys commands.
+
+### Turn it into and application!
+
+I am not sure how to tackle this yet but I would like it so that it could be 'installed' and 'ran' with a couple of mouse clicks, no command line navigation or running of python scripts.
+
+### Add more features
+
+1. Maybe integrate with Google maps for the building / room numbers of my classes
+2. Provide the option to set alarms a specified amount of time before a class begins, or just a specific type of class. For example warn me via an alarm 1 hour before any lab session that I need to wear enclosed footwear! (This recently bit me)
+
+### More testing
+
+So far this has only been tested with my account, I have no idea of it's effectiveness on other students accounts or with other Google accounts. This is a pretty big flaw.
+
+### Clean up the code
+
+Pretty self explanatory, this one is never really finished.
