@@ -2,6 +2,8 @@
 
 Disclaimer: It's not my fault if you are late for class. If for some reason this program scrapes your timetable incorrectly I accept no responsibility. Use at your own risk!
 
+![Alt text](/images/cu_tt_working.png)
+
 ## My Problem:
 
 ### Description
