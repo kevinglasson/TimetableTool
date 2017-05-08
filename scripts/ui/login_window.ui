@@ -14,7 +14,7 @@
    <string>Timetable Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="title">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -32,7 +32,7 @@
      <string>OASIS Login</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -75,10 +75,10 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLineEdit" name="lineEdit"/>
+          <widget class="QLineEdit" name="user_field"/>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_2">
+          <widget class="QLineEdit" name="pass_field">
            <property name="echoMode">
             <enum>QLineEdit::Password</enum>
            </property>
@@ -101,38 +101,5 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>login_btn</sender>
-   <signal>clicked()</signal>
-   <receiver>lineEdit</receiver>
-   <slot>copy()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>322</x>
-     <y>322</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>248</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>login_btn</sender>
-   <signal>clicked()</signal>
-   <receiver>lineEdit_2</receiver>
-   <slot>copy()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>270</x>
-     <y>306</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>259</x>
-     <y>272</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
