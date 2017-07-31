@@ -2,20 +2,18 @@
 """Program to obtain student timetable and publish to google calendar.
 
 This program works with Curtin University's eStudent portal and is able to
-obtain a students timetable data and output it to a newly created google calendar.
+obtain a students timetable data and output it to a newly created
+google calendar.
 
 """
 
 import requests
 import requests.packages.urllib3
 import getpass
-import pandas as pd
 import gcal
-import time
-from CurtinUnit import CurtinUnit
 from CUeStudentSession import CUeStudentSession, LoginFailedError
 
-# TODO: Event colours for Google Events, will move these to a more sane place at
+# TODO: Colours for Google Events, will move these to a more sane place at
 # some stage
 COLOURS = ['11', '10', '7', '3', '9', '5']
 
@@ -28,7 +26,7 @@ def print_timetable(timetable):
     """
     for dict_ in timetable:
         for key, value in dict_.iteritems():
-            print "------------------------------------------------------------------\n"
+            print "---------------------------------------------------------\n"
             value.to_string()
             # print(value.class_list[0].date)
 
