@@ -106,6 +106,10 @@ class CUeStudentSession(object):
             self.timetable_page = r.text
             self.set_default_date()
 
+            # This is to make sure that the initial monday is navigated to
+            # before any scraping takes place
+            self.set_timetable_page_dated(self.timetable_page_mon_date)
+
     # TODO: Implement this, so that we can navigate to a specific date to get
     # the timetable for that week 04-May-2017
     def set_timetable_page_dated(self, date):
@@ -166,6 +170,10 @@ class CUeStudentSession(object):
         to the caller.
         """
         sem_unit_lst = []
+        # Due to the nature of estudent it loads a complete timetable first
+        # and we don't actually want this so on the first iteration we need 
+        # To get the timetable twice... I think.
+
         self.get_timetable_page()
 
         while self.consecutive_empty_weeks <= 2:
