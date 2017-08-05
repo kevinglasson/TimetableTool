@@ -8,24 +8,15 @@ in a CurtinUnit object
 
 It contains the following public usable classes/functions: (See the function
 docstring for further information)
-
-class CUeStudentSession(object)
-
-def login(self, studentid, password)
-
-def get_timetables(self)
-
-def get_all_timetables(self)
-
 """
 
 from __future__ import print_function
 from bs4 import BeautifulSoup
-from CurtinUnit import CurtinUnit
-from exceptions import LoginFailedError
+import exceptions
 import datetime
 import getpass
 import requests
+import utilities as utils
 
 LOGIN_URL = 'https://oasis.curtin.edu.au/Auth/Logon'
 OASIS_URL = 'https://oasis.curtin.edu.au/'
@@ -36,24 +27,16 @@ MONTHS = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
     'Nov', 'Dec'
 ]
-SCHOOLDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
-DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 
-class CUeStudentSession():
-    """Form a requests session for Curtin eStudent.
-
-    This class contains and stores all functions and variables necessary
-    for interacting with Curtin's eStudent portal. It accessess and extracts
-    the timetable information for the provided login details and stores them
-    in a CurtinUnit object
-
-    """
+class Session():
+    """Form a requests session for Curtin eStudent."""
 
     def __init__(self):
         self.sess = requests.Session()
         self.current_page = None
-        self.current_page_date = datetime.datetime.today().date()
+        self.current_page_date = None
+        self.current_data = (self.current_page, self.current_page_date)
 
     # Login
     def login(self, studentid, password):
@@ -61,41 +44,50 @@ class CUeStudentSession():
         data = dict(UserName=studentid, Password=password)
         r = self.sess.post(LOGIN_URL, data=data, allow_redirects=False)
         if r.status_code != requests.codes.found:
-            raise LoginFailedError(r)
+            raise exceptions.LoginFailedError(r)
         else:
-            print('\nLogin successful \n')
+            print('\nLogin successful')
 
-    # Get today's timetable page
-    def navigate_tt_page_today(self):
+    # Get today's timetable page by navigating to the monday of
+    # this week.
+    def navigate_tt_page(self):
         # Navigate to the 'My Studies' tab
         r = self.sess.post(MY_STUDIES_URL)
         # Navigate to the 'eStudent'
         r = self.sess.get(ESTUDENT_URL)
         # Navigate to the 'My Classes' tab
         r = self.sess.get(TIMETABLE_URL)
+        # Update current page
+        self.current_page = r.text
         # Navigate to today's timetable page
-        self.set_timetable_page_dated(self.current_page_date)
+        self.navigate_tt_page_dated(self.get_this_monday())
         # Store the current page as text
         self.current_page = r.text
 
     def navigate_tt_page_dated(self, date):
         # Convert to compatible date string
-        compatible_date = self.datetime_to_estudent(date)
+        compatible_date = utils.datetime_to_estudent(date)
         # Get page data for navigating
-        data = self.make_estudent_happy(self.current_page)
+        data = self.make_estudent_happy()
         # Add data to navigate to requested date
         data.update({
-            'ctl00$Content$ctlFilter$TxtStartDt': date,
+            'ctl00$Content$ctlFilter$TxtStartDt': compatible_date,
             'ctl00$Content$ctlFilter$BtnSearch': 'Refresh',
         })
         r = self.sess.post(TIMETABLE_URL, data=data, allow_redirects=False)
         r.raise_for_status()
-        # Update_current page
+        # Update current_page
         self.current_page = r.text
+        # Update current_page_date
+        self.current_page_date = date
 
     def advance_tt_page_one_week(self):
         date = self.current_page_date + datetime.timedelta(days=7)
         self.navigate_tt_page_dated(date)
+
+    def get_this_monday(self):
+        monday = datetime.datetime.today() - datetime.timedelta(days=datetime.datetime.today().weekday())
+        return monday
 
     def get_all_timetables(self):
         """Get all of the timetables for the study period.
@@ -140,61 +132,11 @@ class CUeStudentSession():
             self.consecutive_empty_weeks = 0
         return empty
 
-    def make_estudent_happy(page):
+    def make_estudent_happy(self):
         """Extract required form values for POST requests."""
         values = {}
-        soup = BeautifulSoup(page, "lxml")
+        soup = BeautifulSoup(self.current_page, "lxml")
 
         for name in '__VIEWSTATE', '__VIEWSTATEGENERATOR', '__EVENTVALIDATION':
             values[name] = soup.find(id=name)['value']
-
         return values
-
-
-    def to_24h(time):
-        """Convert 12h time string to 24h time string.
-
-        Keyword arguments:
-        time - 12h time in the format 00:00xm
-
-        """
-        am_pm = time[-2:].lower()
-        hour, minute = time[:-2].split(':')
-        hour = int(hour)
-        if am_pm == 'pm' and hour != 12:
-            hour += 12
-        # Right align, pad with 0's and use 2 numbers always!
-        return '{:>02}:{}'.format(hour, minute)
-
-
-    # This is potentially useless AF, I hope to delete it
-    def date_from_day_abbr(self, string, mon_date):
-        """Convert an abbreviated day string i.e. Wed.
-
-        Requires the date of the monday of that week to calculate the date of the
-        abbreviated day.
-
-        Keyword arguments:
-        mon_date -- the monday date for the week containing the abbreviated day
-
-        """
-        for i, day in enumerate(DAYS):
-            if day == string:
-                date = mon_date + datetime.timedelta(days=i)
-                break
-        return self.datetime_to_estudent(date)
-
-    def datetime_to_estudent(self, date):
-        """Take a datetime object and return a compatible string.
-        (2017, 5, 4) -> 04-May-2017
-        """
-        string = date.strftime('%d-%b-%Y')
-        return string
-
-    def estudent_to_datetime(self, string):
-        """Take a date in string form and return a datetime object.
-        04-May-2017 -> (2017, 5, 4)
-        """
-        # datetime.date(2017, 5, 4)
-        date = datetime.datetime.strptime(string, '%d-%b-%Y').date()
-        return date

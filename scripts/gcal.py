@@ -27,9 +27,6 @@ from oauth2client.file import Storage
 
 import datetime
 
-from CurtinUnit import CurtinUnit
-from CUeStudentSession import to_datetime
-
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -151,22 +148,3 @@ def convert_to_gcal_event(cls, unit_code, colour):
     event['colorId'] = colour
 
     return (event)
-
-
-# This method should be in CurtinClass as well, as it is specific for the
-# CurtinClass formatting
-def to_gcal_datetime(date, time):
-    """Convert date and time to google formatted dattime.
-
-    Keyword arguments:
-        date -- date string containing the date
-        time -- time string containing the time
-
-    Returns:
-        gcal_datetime -- formatted date string
-
-    """
-    date = to_datetime(date)
-    gcal_datetime = '{}-{:>02}-{:>02}T{}:00+08:00'.format(
-        date.year, date.month, date.day, time)
-    return gcal_datetime

@@ -9,12 +9,12 @@ import datetime
 import constants
 
 
-def to_24h_string(self, string):
+def to_24h_string(string):
     time = datetime.datetime.strptime(string, '%I:%M%p').time()
     return(time.strftime('%H:%M'))
 
 
-def estudent_to_datetime(self, string):
+def estudent_to_datetime(string):
     """Take a date in string form and return a datetime object.
     04-May-2017 -> (2017, 5, 4)
     """
@@ -23,7 +23,7 @@ def estudent_to_datetime(self, string):
     return date
 
 
-def datetime_to_estudent(self, date):
+def datetime_to_estudent(date):
     """Take a datetime object and return a compatible string.
     (2017, 5, 4) -> 04-May-2017
     """
@@ -31,7 +31,7 @@ def datetime_to_estudent(self, date):
     return string
 
 
-def date_from_day_abbr(self, day, date):
+def date_from_day_abbr(day, date):
     """Calculate date from day name and date in the same week
 
     Arguments:
@@ -47,7 +47,7 @@ def date_from_day_abbr(self, day, date):
                 day_date = date + datetime.timedelta(days=i)
             else:
                 day_date = date - datetime.timedelta(days=i)
-        break
+            break
     return day_date
 
 
