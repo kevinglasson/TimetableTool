@@ -22,6 +22,7 @@ def get_all_timetables(self)
 from __future__ import print_function
 from bs4 import BeautifulSoup
 from CurtinUnit import CurtinUnit
+from exceptions import LoginFailedError
 import datetime
 import getpass
 import requests
@@ -39,15 +40,7 @@ SCHOOLDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 
-class LoginFailedError(Exception):
-    """Store the html response code on login exception."""
-
-    def __init__(self, response):
-        """Store the respose code in instance variable."""
-        self.response = response
-
-
-class CUeStudentSession(object):
+class CUeStudentSession():
     """Form a requests session for Curtin eStudent.
 
     This class contains and stores all functions and variables necessary
@@ -58,108 +51,51 @@ class CUeStudentSession(object):
     """
 
     def __init__(self):
-        """Create the necessary variables for a session.
-
-        Initialises requests session and sets instance variables to defaults
-
-        """
         self.sess = requests.Session()
-        self.timetable_page = None
-        # To hold the date of the 'Monday, can figure the rest from that!'
-        self.timetable_page_mon_date = None
-        self.consecutive_empty_weeks = 0
+        self.current_page = None
+        self.current_page_date = datetime.datetime.today().date()
 
     # Login
     def login(self, studentid, password):
-        """Log in to Curtin Oasis provided a username and password.
-
-        Navigates to the login page and accesses the page with the provided
-        username and password, raises a LoginFailedError if login was not
-        successful
-
-        Keyword arguments:
-        studentid -- The students id number
-        password -- The students password
-
-        """
         r = self.sess.get(LOGIN_URL)
         data = dict(UserName=studentid, Password=password)
         r = self.sess.post(LOGIN_URL, data=data, allow_redirects=False)
-
-        # Checks the response code and raise a custom error if login was unsuccessful
         if r.status_code != requests.codes.found:
             raise LoginFailedError(r)
         else:
             print('\nLogin successful \n')
 
-    # Either navigate to the timetable page the first time, or just return the
-    # current timetable page
-    def get_timetable_page(self):
-        """Navigate to the page with the timetable on it."""
-        if not self.timetable_page:
-            # Navigate to the 'My Studies' tab
-            r = self.sess.post(MY_STUDIES_URL)
-            # Navigate to the 'eStudent'
-            r = self.sess.get(ESTUDENT_URL)
-            # Navigate to the 'My Classes' tab
-            r = self.sess.get(TIMETABLE_URL)
-            self.timetable_page = r.text
-            self.set_default_date()
+    # Get today's timetable page
+    def navigate_tt_page_today(self):
+        # Navigate to the 'My Studies' tab
+        r = self.sess.post(MY_STUDIES_URL)
+        # Navigate to the 'eStudent'
+        r = self.sess.get(ESTUDENT_URL)
+        # Navigate to the 'My Classes' tab
+        r = self.sess.get(TIMETABLE_URL)
+        # Navigate to today's timetable page
+        self.set_timetable_page_dated(self.current_page_date)
+        # Store the current page as text
+        self.current_page = r.text
 
-            # This is to make sure that the initial monday is navigated to
-            # before any scraping takes place
-            self.set_timetable_page_dated(self.timetable_page_mon_date)
-
-    # TODO: Implement this, so that we can navigate to a specific date to get
-    # the timetable for that week 04-May-2017
-    def set_timetable_page_dated(self, date):
-        """Navigate to a timetable of a specific date.
-
-        Keyword arguments:
-        date -- The date to navigate to
-
-        """
-        tt_page = self.timetable_page
-        date = from_datetime(date)
-        data = make_estudent_happy(tt_page)
+    def navigate_tt_page_dated(self, date):
+        # Convert to compatible date string
+        compatible_date = self.datetime_to_estudent(date)
+        # Get page data for navigating
+        data = self.make_estudent_happy(self.current_page)
+        # Add data to navigate to requested date
         data.update({
             'ctl00$Content$ctlFilter$TxtStartDt': date,
             'ctl00$Content$ctlFilter$BtnSearch': 'Refresh',
         })
         r = self.sess.post(TIMETABLE_URL, data=data, allow_redirects=False)
         r.raise_for_status()
-        self.timetable_page = r.text
-        return r.text
+        # Update_current page
+        self.current_page = r.text
 
-    def set_default_date(self):
-        """Set the initial date of the timetable page.
-
-        It is necessary to obtain the first date a different way. After the
-        initial date is established all future dates can be calculated.
-
-        """
-        page = self.timetable_page
-        soup = BeautifulSoup(page, "lxml")
-        select = soup.find(
-            id='ctl00_Content_ctlFilter_CboStudyPeriodFilter_elbList')
-        option = select.find_all('option')
-        # '2017-1-May 01, 2017'
-        string = option[2]['value']
-        # datetime.date(2017, 5, 1)
-        date = datetime.datetime.strptime(string[7:], '%b %d, %Y').date()
-        date = date - datetime.timedelta(days=date.weekday())
-        self.timetable_page_mon_date = date
-
-    def inc_mon_date(self):
-        """Move the monday date forward 7 days.
-
-        Increment the monday date by 7 days, because the scrape happens in 1
-        week blocks this will set the next monday date to be navigated to.
-
-        """
-        print('processed: {}'.format(self.timetable_page_mon_date))
-        mon_date = self.timetable_page_mon_date + datetime.timedelta(days=7)
-        self.timetable_page_mon_date = mon_date
+    def advance_tt_page_one_week(self):
+        date = self.current_page_date + datetime.timedelta(days=7)
+        self.navigate_tt_page_dated(date)
 
     def get_all_timetables(self):
         """Get all of the timetables for the study period.
@@ -171,7 +107,7 @@ class CUeStudentSession(object):
         """
         sem_unit_lst = []
         # Due to the nature of estudent it loads a complete timetable first
-        # and we don't actually want this so on the first iteration we need 
+        # and we don't actually want this so on the first iteration we need
         # To get the timetable twice... I think.
 
         self.get_timetable_page()
@@ -204,113 +140,61 @@ class CUeStudentSession(object):
             self.consecutive_empty_weeks = 0
         return empty
 
-    def proc_timetable_page(self):
-        """Process the timetable page to extract the desired information.
+    def make_estudent_happy(page):
+        """Extract required form values for POST requests."""
+        values = {}
+        soup = BeautifulSoup(page, "lxml")
 
-        Returns a dict containing the units that were found in the timetable.
-        The key of the dictionary is the unit code and each unit is contained
-        in a CurtinUnit object.
+        for name in '__VIEWSTATE', '__VIEWSTATEGENERATOR', '__EVENTVALIDATION':
+            values[name] = soup.find(id=name)['value']
+
+        return values
+
+
+    def to_24h(time):
+        """Convert 12h time string to 24h time string.
+
+        Keyword arguments:
+        time - 12h time in the format 00:00xm
 
         """
-        page = self.timetable_page
-        soup = BeautifulSoup(page, "lxml")
-        unit_lst = {}
-
-        for day in SCHOOLDAYS:
-            column = soup.find(
-                id='ctl00_Content_ctlTimetableMain_%sDayCol_Body' % day)
-
-            for cls in column.find_all(class_='cssClassInnerPanel'):
-                info = {
-                    'date':
-                    date_from_day_abbr(day, self.timetable_page_mon_date),
-                    'start':
-                    to_24h(cls.find(class_='cssHiddenStartTm')['value']),
-                    'end':
-                    to_24h(cls.find(class_='cssHiddenEndTm')['value']),
-                    'type':
-                    cls.find(class_='cssTtableClsSlotWhat').string,
-                    'location':
-                    cls.find(class_='cssTtableClsSlotWhere').string,
-                    'unit_code':
-                    cls.find(class_='cssTtableHeaderPanel').string.strip(),
-                }
-                if info['unit_code'] in unit_lst:
-                    unit_lst[info['unit_code']].add_class(info)
-                else:
-                    unit_lst[info['unit_code']] = CurtinUnit(info)
-
-        self.check_for_empty_week(unit_lst)
-        return unit_lst
+        am_pm = time[-2:].lower()
+        hour, minute = time[:-2].split(':')
+        hour = int(hour)
+        if am_pm == 'pm' and hour != 12:
+            hour += 12
+        # Right align, pad with 0's and use 2 numbers always!
+        return '{:>02}:{}'.format(hour, minute)
 
 
-def make_estudent_happy(page):
-    """Extract required form values for POST requests."""
-    values = {}
-    soup = BeautifulSoup(page, "lxml")
+    # This is potentially useless AF, I hope to delete it
+    def date_from_day_abbr(self, string, mon_date):
+        """Convert an abbreviated day string i.e. Wed.
 
-    for name in '__VIEWSTATE', '__VIEWSTATEGENERATOR', '__EVENTVALIDATION':
-        values[name] = soup.find(id=name)['value']
+        Requires the date of the monday of that week to calculate the date of the
+        abbreviated day.
 
-    return values
+        Keyword arguments:
+        mon_date -- the monday date for the week containing the abbreviated day
 
+        """
+        for i, day in enumerate(DAYS):
+            if day == string:
+                date = mon_date + datetime.timedelta(days=i)
+                break
+        return self.datetime_to_estudent(date)
 
-def to_24h(time):
-    """Convert 12h time string to 24h time string.
+    def datetime_to_estudent(self, date):
+        """Take a datetime object and return a compatible string.
+        (2017, 5, 4) -> 04-May-2017
+        """
+        string = date.strftime('%d-%b-%Y')
+        return string
 
-    Keyword arguments:
-    time - 12h time in the format 00:00xm
-
-    """
-    am_pm = time[-2:].lower()
-    hour, minute = time[:-2].split(':')
-    hour = int(hour)
-    if am_pm == 'pm' and hour != 12:
-        hour += 12
-    # Right align, pad with 0's and use 2 numbers always!
-    return '{:>02}:{}'.format(hour, minute)
-
-
-def date_from_day_abbr(string, mon_date):
-    """Convert an abbreviated day string i.e. Wed.
-
-    Requires the date of the monday of that week to calculate the date of the
-    abbreviated day.
-
-    Keyword arguments:
-    mon_date -- the monday date for the week containing the abbreviated day
-
-    """
-    for i, day in enumerate(DAYS):
-        if day == string:
-            date = mon_date + datetime.timedelta(days=i)
-            break
-    return from_datetime(date)
-
-
-def from_datetime(date):
-    """Take a datetime object and return a compatible string.
-
-    A compatible string is one in the format dd.mm.yyyy. It is necessary for
-    navigating to the required timetable page.
-
-    """
-    month_abbr = ''
-    for i, month in enumerate(MONTHS):
-        if date.month == i + 1:
-            month_abbr = month
-    string = "{}-{}-{}".format(date.day, month_abbr, date.year)
-    return string
-
-
-# 04-May-2017
-def to_datetime(string):
-    """Take a date in string form and return a datetime object.
-
-    Converting date in string format to a datetime object as it is cleaner than
-    storing a string, and easier to access.
-
-    """
-    # datetime.date(2017, 5, 4)
-    date = datetime.datetime.strptime(string, '%d-%b-%Y').date()
-    return date
+    def estudent_to_datetime(self, string):
+        """Take a date in string form and return a datetime object.
+        04-May-2017 -> (2017, 5, 4)
+        """
+        # datetime.date(2017, 5, 4)
+        date = datetime.datetime.strptime(string, '%d-%b-%Y').date()
+        return date
