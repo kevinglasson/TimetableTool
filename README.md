@@ -34,12 +34,22 @@ I would like to create a script that will pull all of the my class information f
 git clone https://github.com/kevinglasson/timetable_tool
 ```
 
-2. Navigate to the scripts folder
+2. Navigate to the application folder
 ```
-cd timetable_tool/scripts
+cd timetable_tool
 ```
 
-3. Run the main.py script and follow the prompts
+3. Install the requirements
+```
+sudo pip install -r requirements.txt
+```
+
+3. Navigate to the scripts folder
+```
+cd scripts
+```
+
+4. Run the main.py script and follow the prompts
 ```bash
 ./main.py
 ```
