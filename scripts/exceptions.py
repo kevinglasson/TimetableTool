@@ -1,7 +1,7 @@
 # Trying to implement custom error messages... will work on this
 
 
-class login_failed_error(Exception):
+class LoginFailedError(Exception):
     """Store the html response code on login exception."""
 
     def __init__(self, response):
@@ -9,7 +9,7 @@ class login_failed_error(Exception):
         self.response = response
 
 
-class navigation_failed_error(Exception):
+class NavigationFailedError(Exception):
     """Store the html response code on login exception."""
 
     def __init__(self, response):

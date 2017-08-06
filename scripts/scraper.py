@@ -6,17 +6,15 @@ import constants
 
 class Scraper():
 
-    def __init__(self, page):
-        self.current_page = page
-        self.current_page_date = None
-
-    def update_current_page(self, new_page):
-        self.current_page = new_page
+    def __init__(self):
+        self.consecutive_empty_scrapes = 0
+        pass
 
     # Scrape and return the contents of the current page
-    def proc_timetable_page(self):
-        self.get_page_date()
-        soup = BeautifulSoup(self.current_page, 'lxml')
+    def scrape_timetable_page(self, data):
+        page = data[0]
+        date = data[1]
+        soup = BeautifulSoup(page, 'lxml')
         event_lst = []
 
         # Find and process each 'day' in the timetable
@@ -29,13 +27,18 @@ class Scraper():
                     'summary': self.get_summary(item),
                     'location': self.get_location(item),
                     'start': {
-                        'dateTime': self.get_start_datetime(item, day)
+                        'dateTime': self.get_start_datetime(item, day, date)
                     },
                     'end': {
-                        'dateTime': self.get_end_datetime(item, day)
+                        'dateTime': self.get_end_datetime(item, day, date)
                     },
+                    'colorId': ''
                 }
                 event_lst.append(event)
+        if not event_lst:
+            self.consecutive_empty_scrapes += 1
+        else:
+            self.consecutive_empty_scrapes = 0
         return(event_lst)
 
     def get_summary(self, item):
@@ -48,28 +51,14 @@ class Scraper():
         location = item.find(class_='cssTtableClsSlotWhere').string
         return location
 
-    def get_start_datetime(self, item, day):
-        date = utils.date_from_day_abbr(day, self.current_page_date)
+    def get_start_datetime(self, item, day, date):
+        date = utils.date_from_day_abbr(day, date)
         time = utils.to_24h_string(item.find(class_='cssHiddenStartTm')['value'])
         date_string = utils.to_gcal_datetime(date, time)
         return date_string
 
-    def get_end_datetime(self, item, day):
-        date = utils.date_from_day_abbr(day, self.current_page_date)
+    def get_end_datetime(self, item, day, date):
+        date = utils.date_from_day_abbr(day, date)
         time = utils.to_24h_string(item.find(class_='cssHiddenEndTm')['value'])
         date_string = utils.to_gcal_datetime(date, time)
         return date_string
-
-    def get_page_date(self):
-        print('before if: {}'.format(self.current_page_date))
-        if self.current_page_date is None:
-            self.current_page_date = datetime.datetime.today()
-            print('after if: {}'.format(self.current_page_date))
-        else:
-            soup = BeautifulSoup(self.current_page, 'lxml')
-            print('in else loop')
-            print(soup.find(id='ctl00_Content_ctlFilter_TxtStartDt')['Value'])
-            self.current_page_date = utils.estudent_to_datetime(soup.find(id='ctl00_Content_ctlFilter_TxtStartDt')['Value'])
-
-        # TODO: delete
-        print('get_page_date date is: {}'.format(self.current_page_date))
