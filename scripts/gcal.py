@@ -25,8 +25,6 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-import datetime
-
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
@@ -65,11 +63,12 @@ def get_credentials():
         else:
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
+        print(credentials)
 
     return credentials
 
 
-def create_calendar(cal_name):
+def create_calendar(cal_name, token):
     """Create a new calendar.
 
     Create a new calendar of the specified name
@@ -81,7 +80,8 @@ def create_calendar(cal_name):
         The id of the newly created calendar
 
     """
-    credentials = get_credentials()
+    # credentials = get_credentials()
+    credentials = token
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
@@ -93,7 +93,7 @@ def create_calendar(cal_name):
     return (created_calendar['id'])
 
 
-def add_event(event, cal_id):
+def add_event(event, cal_id, token):
     """Add an event using the Google Calendar API.
 
     Creates a Google Calendar API service object
@@ -104,7 +104,8 @@ def add_event(event, cal_id):
         cal_id -- id of the calendar to be posted to
 
     """
-    credentials = get_credentials()
+    # credentials = get_credentials()
+    credentials = token
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 

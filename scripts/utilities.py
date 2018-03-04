@@ -11,7 +11,7 @@ import constants
 
 def to_24h_string(string):
     time = datetime.datetime.strptime(string, '%I:%M%p').time()
-    return(time.strftime('%H:%M'))
+    return time.strftime('%H:%M')
 
 
 def estudent_to_datetime(string):

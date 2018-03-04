@@ -1,10 +1,9 @@
 from bs4 import BeautifulSoup
 import utilities as utils
-import datetime
 import constants
 
 
-class Scraper():
+class Scraper:
 
     def __init__(self):
         self.consecutive_empty_scrapes = 0
@@ -39,7 +38,7 @@ class Scraper():
             self.consecutive_empty_scrapes += 1
         else:
             self.consecutive_empty_scrapes = 0
-        return(event_lst)
+        return event_lst
 
     def get_summary(self, item):
         unit_code = item.find(class_='cssTtableHeaderPanel').string.strip()
