@@ -1,10 +1,14 @@
 beautifulsoup4==4.6.0
 certifi==2018.1.18
 chardet==3.0.4
+future==0.16.0
+gevent==1.2.2
 google-api-python-client==1.6.2
+greenlet==0.4.13
 httplib2==0.10.3
 idna==2.5
 lxml==4.1.1
+msgpack-python==0.5.5
 oauth2client==4.1.2
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
@@ -14,3 +18,4 @@ rsa==3.4.2
 six==1.11.0
 uritemplate==3.0.0
 urllib3==1.22
+zerorpc==0.6.1
