@@ -32,3 +32,5 @@ logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 s = zerorpc.Server(mainRPC())
 s.bind("tcp://0.0.0.0:4242")
 s.run()
+
+HELLLO
