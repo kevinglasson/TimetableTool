@@ -68,7 +68,7 @@ def get_credentials():
     return credentials
 
 
-def create_calendar(cal_name, token):
+def create_calendar(cal_name, creds):
     """Create a new calendar.
 
     Create a new calendar of the specified name
@@ -81,7 +81,7 @@ def create_calendar(cal_name, token):
 
     """
     # credentials = get_credentials()
-    credentials = token
+    credentials = creds
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
@@ -93,7 +93,7 @@ def create_calendar(cal_name, token):
     return (created_calendar['id'])
 
 
-def add_event(event, cal_id, token):
+def add_event(event, cal_id, creds):
     """Add an event using the Google Calendar API.
 
     Creates a Google Calendar API service object
@@ -105,7 +105,7 @@ def add_event(event, cal_id, token):
 
     """
     # credentials = get_credentials()
-    credentials = token
+    credentials = creds
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 

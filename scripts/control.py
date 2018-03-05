@@ -5,7 +5,7 @@ import scraper
 import constants
 
 
-def main(username, password, calendar_name, token):
+def main(username, password, calendar_name, creds):
     # Disable warnings
     requests.packages.urllib3.disable_warnings()
 
@@ -31,17 +31,17 @@ def main(username, password, calendar_name, token):
     # Create and publish the calendar to Google Calendar
     print('Creating calendar')
     print('Please wait....')
-    create_calendar(event_list, calendar_name, token)
+    create_calendar(event_list, calendar_name, creds)
     # Completed
     print('Successfully Completed')
-    return 'Successfully Completed'
+    return 'Control - Successfully Completed'
 
 
-def create_calendar(event_list, calendar_name, token):
-    cal_id = gcal.create_calendar(calendar_name, token)
+def create_calendar(event_list, calendar_name, creds):
+    cal_id = gcal.create_calendar(calendar_name, creds)
     for lst in event_list:
         for event in lst:
-            gcal.add_event(event, cal_id, token)
+            gcal.add_event(event, cal_id, creds)
 
 
 def attach_colours_to_units(event_list):
