@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
-import utilities as utils
-import datetime
+
 import constants
+import utilities as utils
 
 
 class Scraper():
@@ -24,7 +24,7 @@ class Scraper():
 
             for item in column.find_all(class_='cssClassInnerPanel'):
                 event = {
-                    'summary': self.get_summary(item),
+                    'summary': self.get_summary(item, soup),
                     'location': self.get_location(item),
                     'start': {
                         'dateTime': self.get_start_datetime(item, day, date)
@@ -41,10 +41,22 @@ class Scraper():
             self.consecutive_empty_scrapes = 0
         return(event_lst)
 
-    def get_summary(self, item):
+    def get_summary(self, item, soup):
         unit_code = item.find(class_='cssTtableHeaderPanel').string.strip()
+
+        unit_name = ""
+        td = soup.findAll('td')
+        for cell in td:
+            unit_name = cell.find(text=unit_code)
+            if unit_name is not None:
+                unit_name = \
+                    unit_name.parent.parent.parent.parent.find(class_="cssTtableSspNavMasterSpkInfo3").contents[
+                        0].contents[
+                        0].string.strip()
+                break
+
         _type = item.find(class_='cssTtableClsSlotWhat').string
-        summary = '{} - {}'.format(unit_code, _type.capitalize())
+        summary = '{} - {} - {}'.format(unit_code, unit_name, _type.capitalize())
         return summary
 
     def get_location(self, item):
