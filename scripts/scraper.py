@@ -23,7 +23,7 @@ class Scraper:
 
             for item in column.find_all(class_='cssClassInnerPanel'):
                 event = {
-                    'summary': self.get_summary(item),
+                    'summary': self.get_summary(item, soup),
                     'location': self.get_location(item),
                     'start': {
                         'dateTime': self.get_start_datetime(item, day, date)
@@ -40,7 +40,7 @@ class Scraper:
             self.consecutive_empty_scrapes = 0
         return event_lst
 
-    def get_summary(self, item):
+    def get_summary(self, item, soup):
         unit_code = item.find(class_='cssTtableHeaderPanel').string.strip()
 
         unit_name = ""
