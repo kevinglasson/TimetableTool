@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-from bs4 import BeautifulSoup
-import exceptions
+
 import datetime
-import getpass
+import sys
+
 import requests
-import utilities as utils
+from bs4 import BeautifulSoup
+
 import constants
+import utilities as utils
 
 
 class Session():
@@ -29,7 +31,7 @@ class Session():
         data = dict(UserName=studentid, Password=password)
         r = self.sess.post(constants.LOGIN_URL, data=data, allow_redirects=False)
         if r.status_code != requests.codes.found:
-            raise exceptions.LoginFailedError(r)
+            sys.exit("Login error")
         else:
             print('Login successful')
 

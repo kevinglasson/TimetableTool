@@ -1,8 +1,11 @@
-import zerorpc
-import control
-import httplib2
-from oauth2client import client
 import logging
+
+import httplib2
+import zerorpc
+from oauth2client import client
+
+import control
+
 
 class mainRPC(object):
     def start(self, username, passwword, calendar_name, token):
@@ -32,5 +35,3 @@ logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 s = zerorpc.Server(mainRPC())
 s.bind("tcp://0.0.0.0:4242")
 s.run()
-
-HELLLO

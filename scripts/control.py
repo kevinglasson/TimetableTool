@@ -1,8 +1,9 @@
 import requests.packages.urllib3
-import gcal
-import curtin_estudent
-import scraper
+
 import constants
+import curtin_estudent
+import gcal
+import scraper
 
 
 def main(username, password, calendar_name, creds):
@@ -51,3 +52,38 @@ def attach_colours_to_units(event_list):
             if item['summary'].split()[0] not in unit_names:
                 unit_names.append(item['summary'].split()[0])
             item['colorId'] = constants.COLORS[unit_names.index(item['summary'].split()[0])]
+
+
+def create_unit_separated_calendars(cal_sep_list):
+    for unit_dict in cal_sep_list:
+        cal_id = gcal.create_calendar(unit_dict.keys()[0])
+        print("Creating calendar for: {}".format(unit_dict.keys()[0]))
+        for event in unit_dict[unit_dict.keys()[0]]:
+            gcal.add_event(event, cal_id)
+
+
+def create_unit_separated_cal_list(event_list):
+    cal_names = set()
+    cal_lst = []
+
+    # Go through all of the events and add the unit names to the set to get the individual calendar names
+    for lst in event_list:
+        for item in lst:
+            unit_name = item['summary'].split()[0]
+            cal_names.add(unit_name)
+
+    for item in cal_names:
+        cal_lst.append({
+            item: []
+        })
+
+    pprint(cal_lst)
+
+    for lst in event_list:
+        for item in lst:
+            unit_name = item['summary'].split()[0]
+            for unit_dict in cal_lst:
+                if unit_name in unit_dict:
+                    unit_dict[unit_name].append(item)
+
+    return (cal_lst)
