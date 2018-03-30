@@ -6,7 +6,7 @@ import gcal
 import scraper
 
 
-def main(username, password, calendar_name, creds):
+def main(username, password, calendar_name, separate_cal, creds):
     # Disable warnings
     requests.packages.urllib3.disable_warnings()
 
@@ -29,12 +29,18 @@ def main(username, password, calendar_name, creds):
     # Select and attach the same colour to each unit
     print('Attaching unit colours')
     attach_colours_to_units(event_list)
-    # Create and publish the calendar to Google Calendar
-    print('Creating calendar')
-    print('Please wait....')
-    create_calendar(event_list, calendar_name, creds)
+
+    if separate_cal:
+        cal_sep_list = create_unit_separated_cal_list(event_list)
+        create_unit_separated_calendars(cal_sep_list)
+    else:
+        # Create and publish the calendar to Google Calendar
+        print('Creating calendar')
+        create_calendar(event_list, calendar_name)
+
     # Completed
     print('Successfully Completed')
+
     return 'Control - Successfully Completed'
 
 

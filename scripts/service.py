@@ -8,7 +8,7 @@ import control
 
 
 class mainRPC(object):
-    def start(self, username, passwword, calendar_name, token):
+    def start(self, username, passwword, calendar_name, separate_cal, token):
 
         # Set path to the Web application client_secret_*.json file you downloaded from the
         # Google API Console: https://console.developers.google.com/apis/credentials
@@ -26,7 +26,7 @@ class mainRPC(object):
         http_auth = credentials.authorize(httplib2.Http())
 
         # Call the calendar scraper
-        result = control.main(username, passwword, calendar_name, credentials)
+        result = control.main(username, passwword, calendar_name, separate_cal, credentials)
         return result
 
 
