@@ -47,12 +47,9 @@ class Scraper():
         unit_name = ""
         td = soup.findAll('td')
         for cell in td:
-            unit_name = cell.find(text=unit_code)
-            if unit_name is not None:
-                unit_name = \
-                    unit_name.parent.parent.parent.parent.find(class_="cssTtableSspNavMasterSpkInfo3").contents[
-                        0].contents[
-                        0].string.strip()
+            unit_cd = cell.find(text=unit_code)
+            if unit_cd is not None:
+                unit_name = unit_cd.parent.parent.parent.parent.find(class_="cssTtableSspNavMasterSpkInfo3").contents[0].contents[0].string.strip()
                 break
 
         _type = item.find(class_='cssTtableClsSlotWhat').string
