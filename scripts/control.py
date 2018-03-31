@@ -30,12 +30,16 @@ def main(username, password, calendar_name, separate_cal, creds):
     print('Attaching unit colours')
     attach_colours_to_units(event_list)
 
-    if separate_cal:
+    print("Separate cal is: {}".format(separate_cal))
+    print("Separate cal type is: {}".format(type(separate_cal)))
+
+    if int(separate_cal) is 1:
+        print("Creating separate calendars")
         cal_sep_list = create_unit_separated_cal_list(event_list)
         create_unit_separated_calendars(cal_sep_list, creds)
     else:
         # Create and publish the calendar to Google Calendar
-        print('Creating calendar')
+        print('Creating single calendar')
         create_calendar(event_list, calendar_name, creds)
 
     # Completed
@@ -65,7 +69,7 @@ def create_unit_separated_calendars(cal_sep_list, creds):
         cal_id = gcal.create_calendar(unit_dict.keys()[0], creds)
         print("Creating calendar for: {}".format(unit_dict.keys()[0]))
         for event in unit_dict[unit_dict.keys()[0]]:
-            gcal.add_event(event, cal_id)
+            gcal.add_event(event, cal_id, creds)
 
 
 def create_unit_separated_cal_list(event_list):
