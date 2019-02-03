@@ -1,0 +1,16 @@
+MANIFEST.in
+README.md
+setup.py
+bin/timetable-tool
+timetable_tool/__init__.py
+timetable_tool/client_secret.json
+timetable_tool/constants.py
+timetable_tool/curtin_estudent.py
+timetable_tool/gcal.py
+timetable_tool/scraper.py
+timetable_tool/utilities.py
+timetable_tool.egg-info/PKG-INFO
+timetable_tool.egg-info/SOURCES.txt
+timetable_tool.egg-info/dependency_links.txt
+timetable_tool.egg-info/requires.txt
+timetable_tool.egg-info/top_level.txt
