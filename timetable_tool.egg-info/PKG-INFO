@@ -1,0 +1,100 @@
+Metadata-Version: 2.1
+Name: timetable-tool
+Version: 0.1.1.5
+Summary: Scrape a curtin timetable_tool into google calendar
+Home-page: https://github.com/kevinglasson/TimetableTool.git
+Author: Kevin Glasson
+Author-email: kevinglasson+timetable_tool@gmail.com
+License: UNKNOWN
+Description: # timetable_tool
+        
+        Disclaimer: It's not my fault if you are late for class. If for some reason this program scrapes your timetable incorrectly I accept no responsibility. Use at your own risk!
+        
+        ![Timetable image](/images/cu_tt_working.png)
+        
+        ## My Problem:
+        
+        ### Description
+        
+        I have a had a brief look at the timetable display for curtin in eStudent, it is super inconvenient to log in through oasis __AND THEN__ into eStudent __AND THEN__ go to My Classes __AND THEN__ select the appropriate dates to view what you __ACTUALLY__ have on at uni that week.
+        
+        ### The solution I would like!
+        
+        I would like to create a script that will pull all of the my class information from eStudent and then be able to set this up in Google Calendar as a seperate calendar (So that it can be turned on and off, otherwise it will make my calendar super cluttered)
+        
+        ## My Solution:
+        
+        ### Pre-requisites
+        1. Student at Curtin University, this only works for Curtins student portal, although lots of universities use eStudent. It would be relatively simple to adapt this to suit.
+        2. Linux - At this stage I have only tested it on Linux and there are some minor OS operations so it will only work on Linux for now
+        3. There are a few necessary python packages that can all be installed through pip, they are:
+            1. requests
+            2. getpass
+            3. BeautifulSoup
+            4. Google API modules
+            ```bash
+            sudo pip install --upgrade google-api-python-client
+            ```
+        
+        ### How to use it!
+        1. Clone my repository
+        ```bash
+        git clone https://github.com/kevinglasson/timetable_tool
+        ```
+        
+        2. Navigate to the application folder
+        ```
+        cd timetable_tool
+        ```
+        
+        3. Install the requirements
+        ```
+        sudo pip install -r requirements.txt
+        ```
+        
+        3. Navigate to the scripts folder
+        ```
+        cd scripts
+        ```
+        
+        4. Run the main.py script and follow the prompts
+        ```bash
+        python main.py
+        ```
+        
+        ## TODO:
+        
+        Now that I have the basic command line functionality working I will endeavour to implement the following extensions and improvements.
+        
+        ### GUI
+        
+        If I am to make this accessible and useable for everyone it is going to need a GUI, command line operation is too clunky and intimidating for some!
+        
+        ### OS Independency
+        
+        Another thing needed is to account for the small amount of OS operations in the Google credential file creation part of the program, this needs to be able to assess what type of operating system it is running on and issue the correct sys commands.
+        
+        ### Turn it into and application!
+        
+        I am not sure how to tackle this yet but I would like it so that it could be 'installed' and 'ran' with a couple of mouse clicks, no command line navigation or running of python scripts.
+        
+        ### Add more features
+        
+        1. Maybe integrate with Google maps for the building / room numbers of my classes
+        2. Provide the option to set alarms a specified amount of time before a class begins, or just a specific type of class. For example warn me via an alarm 1 hour before any lab session that I need to wear enclosed footwear! (This recently bit me)
+        
+        ### More testing
+        
+        So far this has only been tested with my account, I have no idea of it's effectiveness on other students accounts or with other Google accounts. This is a pretty big flaw.
+        
+        ### Clean up the code
+        
+        Pretty self explanatory, this one is never really finished.
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3
+Description-Content-Type: text/markdown

@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-from bs4 import BeautifulSoup
-import exceptions
 import datetime
-import getpass
+import logging
+import sys
+
 import requests
-import utilities as utils
-import constants
+from bs4 import BeautifulSoup
+
+from timetable_tool import constants
+from timetable_tool import utilities as utils
+
+logger = logging.getLogger(__name__)
 
 
 class Session():
@@ -27,11 +30,13 @@ class Session():
     def login(self, studentid, password):
         r = self.sess.get(constants.LOGIN_URL)
         data = dict(UserName=studentid, Password=password)
-        r = self.sess.post(constants.LOGIN_URL, data=data, allow_redirects=False)
+        r = self.sess.post(constants.LOGIN_URL, data=data,
+                           allow_redirects=False)
         if r.status_code != requests.codes.found:
-            raise exceptions.LoginFailedError(r)
+            logger.info('Login error')
+            sys.exit("Exiting...")
         else:
-            print('Login successful')
+            logger.info('Login successful!')
 
     # Get today's timetable page by navigating to the monday of
     # this week.
@@ -57,7 +62,8 @@ class Session():
             'ctl00$Content$ctlFilter$TxtStartDt': compatible_date,
             'ctl00$Content$ctlFilter$BtnSearch': 'Refresh',
         })
-        r = self.sess.post(constants.TIMETABLE_URL, data=data, allow_redirects=False)
+        r = self.sess.post(constants.TIMETABLE_URL,
+                           data=data, allow_redirects=False)
         r.raise_for_status()
         # Update current_page
         self.current_page = r.text
@@ -71,7 +77,8 @@ class Session():
         self.navigate_tt_page_dated(date)
 
     def get_this_monday(self):
-        monday = datetime.datetime.today() - datetime.timedelta(days=datetime.datetime.today().weekday())
+        monday = datetime.datetime.today(
+        ) - datetime.timedelta(days=datetime.datetime.today().weekday())
         return monday
 
     def make_estudent_happy(self):
